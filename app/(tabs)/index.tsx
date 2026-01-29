@@ -1,98 +1,98 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { TrendingUp, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react-native';
+import '../../global.css';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [refreshing, setRefreshing] = React.useState(false);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    // Simulate fetch
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
+  return (
+    <SafeAreaView className="flex-1 bg-background">
+      <ScrollView
+        className="flex-1 px-5"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E8B017" />}
+      >
+        {/* Header */}
+        <View className="mt-6 mb-8 flex-row justify-between items-center">
+          <View>
+            <Text className="text-text-secondary text-sm font-medium">Total Balance</Text>
+            <Text className="text-text-primary text-4xl font-bold mt-1">$1,420.50</Text>
+          </View>
+          <View className="bg-card p-2 rounded-full border border-text-muted/20">
+             <Wallet size={24} color="#E8B017" />
+          </View>
+        </View>
+
+        {/* Action Buttons */}
+        <View className="flex-row gap-4 mb-8">
+          <Button
+            title="Lend"
+            className="flex-1"
+            icon={<ArrowUpRight size={20} color="#1A1A1A" />}
+          />
+          <Button
+            title="Borrow"
+            variant="secondary"
+            className="flex-1"
+            icon={<ArrowDownLeft size={20} color="#FFFFFF" />}
+          />
+        </View>
+
+        {/* Trust Score Card */}
+        <Card className="mb-8 bg-gradient-to-r from-card to-surface border border-text-muted/10">
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-text-secondary font-medium">Social Trust Score</Text>
+            <TrendingUp size={20} color="#22C55E" />
+          </View>
+          <Text className="text-text-primary text-3xl font-bold">724</Text>
+          <Text className="text-success text-sm mt-1">+12 pts this month</Text>
+        </Card>
+
+        {/* Recent Activity */}
+        <View>
+          <Text className="text-text-primary text-lg font-bold mb-4">Recent Activity</Text>
+          
+          {/* Activity Item 1 */}
+          <Card className="mb-3 flex-row items-center justify-between p-4" variant="outlined">
+            <View className="flex-row items-center gap-3">
+              <View className="bg-primary/20 p-2.5 rounded-full">
+                <ArrowDownLeft size={20} color="#E8B017" />
+              </View>
+              <View>
+                <Text className="text-text-primary font-bold">From: Sarah M.</Text>
+                <Text className="text-text-secondary text-xs">Due in 5 days</Text>
+              </View>
+            </View>
+            <Text className="text-success font-bold">+$50.00</Text>
+          </Card>
+
+           {/* Activity Item 2 */}
+           <Card className="mb-3 flex-row items-center justify-between p-4" variant="outlined">
+            <View className="flex-row items-center gap-3">
+              <View className="bg-secondary/20 p-2.5 rounded-full">
+                <ArrowUpRight size={20} color="#9B7EB5" />
+              </View>
+              <View>
+                <Text className="text-text-primary font-bold">To: James K.</Text>
+                <Text className="text-text-secondary text-xs">Pending acceptance</Text>
+              </View>
+            </View>
+            <Text className="text-text-primary font-bold">-$120.00</Text>
+          </Card>
+
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
