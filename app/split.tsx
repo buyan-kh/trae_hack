@@ -36,7 +36,7 @@ export default function SplitBillScreen() {
       if (!currentUser) return;
 
       const { data, error } = await supabase
-        .from('friends')
+        .from('friendships')
         .select(`
           user_id,
           friend_id,
@@ -101,9 +101,7 @@ export default function SplitBillScreen() {
         lender_id: currentUser.id,
         borrower_id: friend.id,
         amount: splitCalculations.perPerson,
-        status: 'pending',
-        interest_rate: 0, // Usually 0 for splits
-        service_fee: 0
+        status: 'pending'
       }));
 
       const { error } = await supabase

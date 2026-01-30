@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from './supabase';
 
 type UserProfile = {
@@ -21,8 +21,8 @@ type SessionContextType = {
 const SessionContext = createContext<SessionContextType>({
   user: null,
   isLoading: true,
-  signIn: async () => {},
-  signOut: async () => {},
+  signIn: async () => { },
+  signOut: async () => { },
 });
 
 export const useSession = () => useContext(SessionContext);
@@ -51,29 +51,49 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
   const signIn = async (username: string) => {
     setIsLoading(true);
     try {
-      // 1. Check if user exists
-      const { data: existingUsers, error: searchError } = await supabase
+      const email = `${username.toLowerCase().replace(/\s/g, '')}@example.com`; // Simple email generation
+      const password = 'peerly-default-password'; // Fixed password for simplicity
+
+      // 1. Try to sign in
+      let { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      // 2. If sign in fails (likely user doesn't exist), try to sign up
+      if (authError) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (signUpError) {
+          // If sign up fails, it might be unrelated (e.g. rate limit), but let's handle it
+          throw signUpError;
+        }
+        authData = signUpData;
+      }
+
+      const authUser = authData.user;
+      if (!authUser) throw new Error('Authentication failed');
+
+      // 3. Ensure profile exists linked to this Auth ID
+      const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('username', username)
-        .limit(1);
+        .eq('id', authUser.id)
+        .single();
 
-      if (searchError) throw searchError;
+      let currentUser = existingProfile;
 
-      let currentUser;
-
-      if (existingUsers && existingUsers.length > 0) {
-        // User exists
-        currentUser = existingUsers[0];
-      } else {
-        // Create new user
-        // Generate a random UUID? Postgres handles it with default uuid_generate_v4() if we set it,
-        // or we let Supabase return it.
-        const { data: newUser, error: createError } = await supabase
+      if (!currentUser) {
+        // Create new profile with the SAME ID as the auth user
+        const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
+            id: authUser.id,
             username,
-            full_name: username, // Default full name to username
+            full_name: username,
             balance: 1000,
             trust_score: 650
           })
@@ -81,13 +101,13 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
           .single();
 
         if (createError) throw createError;
-        currentUser = newUser;
+        currentUser = newProfile;
       }
 
       // Save session
       await AsyncStorage.setItem('peerly_user', JSON.stringify(currentUser));
       setUser(currentUser);
-      
+
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;

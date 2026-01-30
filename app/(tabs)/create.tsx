@@ -7,6 +7,7 @@ import { useSession } from '@/lib/session';
 import { supabase } from '@/lib/supabase';
 import * as Haptics from 'expo-haptics';
 import * as Linking from 'expo-linking';
+import { router } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { Share2 } from 'lucide-react-native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -22,7 +23,7 @@ export default function CreateLoanScreen() {
   const [interestRate, setInterestRate] = useState('5'); // Default 5%
   const [loading, setLoading] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState<{ username: string } | null>(null);
-  
+
   // Receipt State
   const [receiptVisible, setReceiptVisible] = useState(false);
   const [receiptData, setReceiptData] = useState<LoanReceiptProps | null>(null);
@@ -115,9 +116,7 @@ export default function CreateLoanScreen() {
         lender_id: type === 'borrow' ? friendId : currentUser.id,
         borrower_id: type === 'borrow' ? currentUser.id : (type === 'link' ? null : friendId),
         amount: parseFloat(amount),
-        status: type === 'link' ? 'pending_acceptance' : 'pending',
-        interest_rate: parseFloat(interestRate),
-        service_fee: calculations.serviceFee
+        status: type === 'link' ? 'pending_acceptance' : 'pending'
       };
 
       const { data, error } = await supabase
@@ -177,26 +176,26 @@ export default function CreateLoanScreen() {
 
       } else {
         if (type === 'lend') {
-           // Prepare receipt data
-           setReceiptData({
-             amount: calculations.val,
-             date: new Date().toLocaleDateString(),
-             lender: currentUserProfile?.username || 'Me',
-             borrower: username,
-             description: description,
-             totalRepayment: calculations.totalRepayment,
-             type: 'lend'
-           });
-           setReceiptVisible(true);
-           // Auto trigger share after a short delay to allow render
-           setTimeout(() => {
-             // Optional: automatically prompt share. User might prefer manual.
-             // handleShareReceipt(); 
-           }, 500);
+          // Prepare receipt data
+          setReceiptData({
+            amount: calculations.val,
+            date: new Date().toLocaleDateString(),
+            lender: currentUserProfile?.username || 'Me',
+            borrower: username,
+            description: description,
+            totalRepayment: calculations.totalRepayment,
+            type: 'lend'
+          });
+          setReceiptVisible(true);
+          // Auto trigger share after a short delay to allow render
+          setTimeout(() => {
+            // Optional: automatically prompt share. User might prefer manual.
+            // handleShareReceipt(); 
+          }, 500);
         } else {
-           Alert.alert('Success', `Transaction requested successfully!`);
+          Alert.alert('Success', `Transaction requested successfully!`);
         }
-        
+
         setAmount('');
         setDescription('');
         setUsername('');
@@ -226,7 +225,7 @@ export default function CreateLoanScreen() {
               variant="secondary"
               title="Split Bill"
               size="sm"
-              onPress={() => Alert.alert('Coming Soon', 'Split Bill feature is under development!')}
+              onPress={() => router.push('/split')}
             />
           </View>
 
@@ -329,27 +328,27 @@ export default function CreateLoanScreen() {
             <View className="flex-1 justify-center items-center bg-black/80 p-5">
               <View className="w-full bg-background rounded-3xl overflow-hidden">
                 <View className="p-4 border-b border-border flex-row justify-between items-center">
-                   <ThemedText type="defaultSemiBold">Transaction Successful</ThemedText>
-                   <TouchableOpacity onPress={() => setReceiptVisible(false)}>
-                      <ThemedText className="text-primary">Close</ThemedText>
-                   </TouchableOpacity>
+                  <ThemedText type="defaultSemiBold">Transaction Successful</ThemedText>
+                  <TouchableOpacity onPress={() => setReceiptVisible(false)}>
+                    <ThemedText className="text-primary">Close</ThemedText>
+                  </TouchableOpacity>
                 </View>
-                
+
                 <ScrollView className="p-4">
-                   {receiptData && (
-                     <LoanReceipt 
-                        ref={viewShotRef}
-                        {...receiptData}
-                     />
-                   )}
+                  {receiptData && (
+                    <LoanReceipt
+                      ref={viewShotRef}
+                      {...receiptData}
+                    />
+                  )}
                 </ScrollView>
 
                 <View className="p-4 border-t border-border">
-                   <Button 
-                      title="Share Receipt" 
-                      onPress={handleShareReceipt}
-                      icon={<Share2 size={18} color="white" />}
-                   />
+                  <Button
+                    title="Share Receipt"
+                    onPress={handleShareReceipt}
+                    icon={<Share2 size={18} color="white" />}
+                  />
                 </View>
               </View>
             </View>

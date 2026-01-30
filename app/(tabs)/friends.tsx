@@ -37,7 +37,7 @@ export default function FriendsScreen() {
 
       // Fetch friends where I am user_id OR friend_id
       const { data, error } = await supabase
-        .from('friends')
+        .from('friendships')
         .select(`
           id,
           status,
@@ -48,9 +48,22 @@ export default function FriendsScreen() {
         `)
         .or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching friends:', error);
+        throw error;
+      }
+
+      if (!data) {
+        setFriends([]);
+        return;
+      }
 
       const formattedFriends: Friend[] = data.map((item: any) => {
+        // Safe check for missing relations if DB is inconsistent
+        if (!item.inviter || !item.invitee) {
+          console.warn('Inconsistent friend data:', item);
+          return null;
+        }
         const isSender = item.user_id === currentUser.id;
         const profile = isSender ? item.invitee : item.inviter;
         return {
@@ -62,7 +75,7 @@ export default function FriendsScreen() {
           status: item.status,
           is_sender: isSender
         };
-      });
+      }).filter(Boolean) as Friend[]; // Filter out nulls
 
       setFriends(formattedFriends);
     } catch (err: any) {
@@ -73,11 +86,17 @@ export default function FriendsScreen() {
   }
 
   async function sendFriendRequest() {
-    if (!searchUsername) return;
+    if (!searchUsername) {
+      Alert.alert('Error', 'Please enter a username');
+      return;
+    }
     try {
       setLoading(true);
-      if (!currentUser) return;
-      
+      if (!currentUser) {
+        Alert.alert('Error', 'You must be logged in');
+        return;
+      }
+
       // 1. Find user by username
       const { data: users, error: searchError } = await supabase
         .from('profiles')
@@ -98,7 +117,7 @@ export default function FriendsScreen() {
 
       // 2. Check if request already exists (handled by unique constraint but good to check UI side or catch error)
       const { error: insertError } = await supabase
-        .from('friends')
+        .from('friendships')
         .insert({
           user_id: currentUser.id,
           friend_id: friendId,
@@ -127,13 +146,13 @@ export default function FriendsScreen() {
     try {
       if (accept) {
         const { error } = await supabase
-          .from('friends')
+          .from('friendships')
           .update({ status: 'accepted' })
           .eq('id', friendshipId);
         if (error) throw error;
       } else {
         const { error } = await supabase
-          .from('friends')
+          .from('friendships')
           .delete()
           .eq('id', friendshipId);
         if (error) throw error;
