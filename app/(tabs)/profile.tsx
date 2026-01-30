@@ -1,26 +1,14 @@
-import { View, Text, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Settings, Share2, LogOut, CreditCard, ShieldCheck } from 'lucide-react-native';
-import { supabase } from '@/lib/supabase';
-import { Session } from '@supabase/supabase-js';
+import { useSession } from '@/lib/session';
+import { CreditCard, LogOut, Settings, Share2, ShieldCheck } from 'lucide-react-native';
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import '../../global.css';
 
 export default function ProfileScreen() {
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-  }, []);
-
-  async function handleSignOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) Alert.alert('Error signing out', error.message);
-  }
+  const { user, signOut } = useSession();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -36,14 +24,14 @@ export default function ProfileScreen() {
         <View className="items-center mb-8">
             <View className="w-24 h-24 bg-card rounded-full items-center justify-center mb-4 border border-primary/20">
                <Text className="text-primary text-3xl font-bold">
-                 {session?.user?.email?.charAt(0).toUpperCase() || 'U'}
+                 {user?.username?.charAt(0).toUpperCase() || 'U'}
                </Text>
             </View>
             <Text className="text-text-primary text-xl font-bold">
-              {session?.user?.email?.split('@')[0] || 'User'}
+              {user?.full_name || user?.username || 'User'}
             </Text>
             <Text className="text-text-secondary">
-              {session?.user?.email || '@username'}
+              @{user?.username || 'username'}
             </Text>
         </View>
 
@@ -86,7 +74,7 @@ export default function ProfileScreen() {
                 variant="ghost" 
                 title="Sign Out" 
                 className="mt-4"
-                onPress={handleSignOut}
+                onPress={signOut}
                 icon={<LogOut size={20} color="#EF4444" />}
             />
         </View>

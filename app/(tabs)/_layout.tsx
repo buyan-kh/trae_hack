@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Home, PlusCircle, User } from 'lucide-react-native';
+import { Home, PlusCircle, TrendingUp, User, Users } from 'lucide-react-native';
 import React from 'react';
 import { Platform } from 'react-native';
 
@@ -29,12 +29,12 @@ export default function TabLayout() {
             paddingTop: 10,
           },
           default: {
-             backgroundColor: '#121212',
-             borderTopWidth: 0,
-             elevation: 0,
-             height: 65,
-             paddingTop: 10,
-             paddingBottom: 10,
+            backgroundColor: '#121212',
+            borderTopWidth: 0,
+            elevation: 0,
+            height: 65,
+            paddingTop: 10,
+            paddingBottom: 10,
           },
         }),
       }}>
@@ -53,10 +53,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="friends"
+        options={{
+          title: 'Friends',
+          tabBarIcon: ({ color }) => <Users size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <User size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="watchlist"
+        options={{
+          title: 'Watchlist',
+          tabBarIcon: ({ color }) => <TrendingUp size={24} color={color} />,
         }}
       />
     </Tabs>
