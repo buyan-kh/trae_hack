@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 import React from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { twMerge } from 'tailwind-merge';
 
 interface ButtonProps {
   onPress?: () => void;
@@ -49,13 +50,13 @@ export function Button({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      className={clsx(
+      className={twMerge(clsx(
         baseStyles,
         variants[variant],
         sizes[size],
         disabled && 'opacity-50',
         className
-      )}
+      ))}
     >
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? '#1A1A1A' : '#E8B017'} />

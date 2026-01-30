@@ -226,7 +226,7 @@ export default function CreateLoanScreen() {
               variant="secondary"
               title="Split Bill"
               size="sm"
-            // onPress={() => router.push('/split')} 
+              onPress={() => Alert.alert('Coming Soon', 'Split Bill feature is under development!')}
             />
           </View>
 

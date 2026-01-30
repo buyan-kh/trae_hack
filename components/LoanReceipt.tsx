@@ -71,3 +71,5 @@ export const LoanReceipt = forwardRef<View, LoanReceiptProps>(({
     </View>
   );
 });
+
+LoanReceipt.displayName = 'LoanReceipt';

@@ -7,6 +7,8 @@ type UserProfile = {
   username: string;
   full_name: string;
   email?: string;
+  balance?: number;
+  trust_score?: number;
 };
 
 type SessionContextType = {
