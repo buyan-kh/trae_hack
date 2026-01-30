@@ -1,6 +1,21 @@
 # Peerly App
 
-A React Native mobile application built with Expo, NativeWind, and Supabase.
+A React Native mobile application built with Expo, NativeWind, and Supabase for tracking social loans and expenses.
+
+## Screenshots
+
+<p align="center">
+  <img src="./assets/screenshot-1.png" width="30%" alt="Screen 1" />
+  <img src="./assets/screenshot-2.png" width="30%" alt="Screen 2" />
+  <img src="./assets/screenshot-3.png" width="30%" alt="Screen 3" />
+</p>
+
+## Features
+
+- **Social Loans**: Easily track money lent or borrowed from friends.
+- **Trust Score**: Gamified social credit score based on repayment history.
+- **Split Bill**: (Coming Soon) Split expenses with groups.
+- **Activity Log**: Keep a history of all your transactions.
 
 ## Prerequisites
 
