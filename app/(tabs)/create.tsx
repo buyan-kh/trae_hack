@@ -1,16 +1,16 @@
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Alert, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState, useMemo } from 'react';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
 import { supabase } from '@/lib/supabase';
+import React, { useMemo, useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import '../../global.css';
 
 export default function CreateLoanScreen() {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [friendName, setFriendName] = useState('');
+  const [username, setUsername] = useState('');
   const [interestRate, setInterestRate] = useState('5'); // Default 5%
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +35,7 @@ export default function CreateLoanScreen() {
   }, [amount, interestRate]);
 
   const handleTransaction = async (type: 'lend' | 'borrow') => {
-    if (!amount || !friendName) {
+    if (!amount || !username) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -47,12 +47,12 @@ export default function CreateLoanScreen() {
 
       const { data: friends, error: searchError } = await supabase
         .from('profiles')
-        .select('id, full_name')
-        .ilike('full_name', friendName)
+        .select('id, username')
+        .eq('username', username)
         .limit(1);
 
       if (searchError || !friends || friends.length === 0) {
-        throw new Error('User not found. Please check the name.');
+        throw new Error('User not found. Please check the username.');
       }
 
       const friend = friends[0];
@@ -83,7 +83,7 @@ export default function CreateLoanScreen() {
         Alert.alert('Success', `Transaction ${type === 'lend' ? 'sent' : 'requested'} successfully!`);
         setAmount('');
         setDescription('');
-        setFriendName('');
+        setUsername('');
       }
 
     } catch (err: any) {
@@ -125,9 +125,10 @@ export default function CreateLoanScreen() {
           <View className="gap-4">
              <Input
                 label="Who is this for?"
-                placeholder="Exact Full Name (e.g. John Doe)"
-                value={friendName}
-                onChangeText={setFriendName}
+                placeholder="Username (e.g. johndoe)"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
              />
              
              <View className="flex-row gap-4">

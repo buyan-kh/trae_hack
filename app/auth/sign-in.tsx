@@ -10,15 +10,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
   async function handleAuth() {
     setLoading(true);
     if (isSignUp) {
+      if (!username) {
+        Alert.alert('Error', 'Please enter a username');
+        setLoading(false);
+        return;
+      }
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username,
+          },
+        },
       });
 
       if (error) Alert.alert(error.message);
@@ -53,6 +64,17 @@ export default function SignInScreen() {
         </View>
 
         <View className="gap-4">
+          {isSignUp && (
+            <View>
+              <Input
+                label="Username"
+                placeholder="johndoe"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+              />
+            </View>
+          )}
           <View>
              <Input
                 label="Email"
